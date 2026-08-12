@@ -179,8 +179,8 @@ In addition to the top-level skills, you can invoke any domain skill directly wh
 | `/cel-programs` | CEL program authoring, pagination patterns, auth patterns, rate limiting, error handling |
 | `/ingest-pipelines` | Ingest pipeline processors, grok patterns, Painless scripts, error handling |
 | `/ecs-field-mappings` | ECS field mapping strategy, event categorization, custom fields |
-| `/input-configurations` | Input templates for all supported input types: CEL, HTTPJSON, syslog, filestream, AWS S3, Azure Event Hub, GCP Pub/Sub, and more |
-| `/package-spec` | Manifest rules, changelog schema, format version features |
+| `/input-configurations` | Input templates for supported input types (HTTPJSON, AWS S3, CloudWatch, Azure Event Hub, GCP Pub/Sub, and more), plus Federated Identity (Cloud Connectors) for agentless AWS integrations |
+| `/package-spec` | Manifest rules, changelog schema, format version features, `var_groups` / `provider_permissions` |
 | `/integration-testing` | Pipeline testing, system testing, test fixture authoring |
 | `/elastic-package-cli` | `elastic-package` CLI usage and troubleshooting |
 | `/dashboard-guidelines` | Kibana dashboard authoring standards |

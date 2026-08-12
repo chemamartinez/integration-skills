@@ -98,8 +98,8 @@ Create this before creating any data streams.
 - Set `title`, `description`, `version` (use `0.1.0` for new integrations)
 - Set `categories` (one or two relevant values)
 - Set `owner` (github team/org)
-- Set `format_version: "3.4.2"`. The scaffold may generate a different version — always override to `3.4.2`.
-- Set `conditions.kibana.version: "^8.19.0 || ^9.1.0"`
+- Set `format_version: "3.4.2"` by default. The scaffold may generate a different version — override to `3.4.2` unless the package needs a higher floor (e.g. Federated Identity / `provider_permissions` requires `3.6.4`; see `package-spec` and `input-configurations` -> `references/federated-identity-aws.md`).
+- Set `conditions.kibana.version: "^8.19.0 || ^9.1.0"` by default. For Federated Identity / `auth.aws`, set both `conditions.kibana.version: "^9.4.0"` and `conditions.agent.version: "^9.4.0"` instead.
 
 ### 3. Update `changelog.yml`
 
