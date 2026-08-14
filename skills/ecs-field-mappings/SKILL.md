@@ -212,7 +212,7 @@ Prefer ECS fields whenever semantics match. If no ECS field exists for the data,
 - `event.type`: `access`, `admin`, `allowed`, `change`, `connection`, `creation`, `deletion`, `denied`, `device`, `end`, `error`, `group`, `indicator`, `info`, `installation`, `protocol`, `start`, `user`
 
 Decision workflow:
-1. `event.kind`: `event` for normal logs, `metric` for measurements, `state` for snapshots, `pipeline_error` in `on_failure`
+1. `event.kind`: `event` for normal logs, `metric` for measurements, `state` for periodic categorical observations *about* a thing (e.g. CDR posture/compliance findings), `asset` for entity/inventory snapshot records — one document per entity per collection cycle (see `entity-mappings` skill), `pipeline_error` in `on_failure`
 2. `event.category`: one or more values (array) for the broad domain
 3. `event.type`: one or more values (array) for operation style
 4. `event.outcome`: only when a clear success/failure/unknown applies; omit for informational/metric events
@@ -283,6 +283,8 @@ When using `geoip` for geolocation, always also perform an ASN lookup using `Geo
 See the `ingest-pipelines` skill → `references/processor-cookbook.md` for the full geo+ASN pattern with both source and destination.
 
 **`os`** — nested under: `host.os`, `observer.os`, `user_agent.os`
+
+**`entity`** (beta; leaf fields require ECS `v9.4.0+`) — nested under: `user.entity`, `host.entity`, `service.entity`, `cloud.entity`, `orchestrator.entity`, root `entity`, `entity.target`. Never invent `device.entity.*` — not a valid parent. For entity data streams (i.e. those with `event.kind: asset`), see the `entity-mappings` skill for the full field catalog, pipeline patterns, and ECS availability matrix.
 
 ### Nested (array-of-objects) ECS fields
 
@@ -498,6 +500,7 @@ Fix the root cause. Do not work around it by:
 - **`geo.*` at document root** — unmapped; always nest under a parent entity
 - **`event.category` or `event.type` set as scalar** — must use `append` processor, not `set`
 - **`nested` ECS field mapped as parallel arrays** — `email.attachments`, `threat.enrichments`, and similar `nested` fields must be arrays of objects, not objects with parallel scalar arrays; see the *Nested (array-of-objects) ECS fields* section above
+- **`entity.attributes.*` / `entity.relationships.*` with `external: ecs` at `git@v9.3.0`** — these leaf fields do not exist at ECS v9.3.0 (`attributes` is a bare `object`; `entity_reference` fieldset is absent). They first appear at v9.4.0. Using `external: ecs` on them at `git@v9.3.0` causes `field is undefined` errors. Packages with entity data streams must pin `git@v9.5.0` in `_dev/build/build.yml` and match `ecs.version: 9.5.0` in the pipeline. See the `entity-mappings` skill.
 
 ## Validation loop
 
@@ -513,4 +516,6 @@ elastic-package test pipeline --data-streams <stream>
 - `references/categorization-cheatsheet.md`
 - `references/root-and-core-fields.md`
 - `references/fieldset-links.md`
+- `references/cdr-field-requirements.md` — cloud security / CDR integrations only (`cloudsecurity_cdr` category)
+- `entity-mappings/references/entity-field-catalog.md` — ECS `entity.*` fields; entity/inventory data streams only
 - [ECS field reference](https://www.elastic.co/docs/reference/ecs/ecs-field-reference)

@@ -604,4 +604,6 @@ As documented in the JSE00001 section above: do not add a `remove` processor for
 - `references/error-handling-patterns.md`
 - `references/grok-recipes.md` — grok syntax, type coercion, syslog header recipes, common mistakes, pattern library link
 - `references/builder-subagent-guidance.md` — subagent operating manual: scope boundaries, skill-load sequence, input data paths (CEL-first vs Direct), 9-step pipeline build workflow, "review generated output, never hand-edit expected JSON", reporting contract. The orchestrator dispatches subagents by passing this file's **path** in the task prompt; the subagent reads it itself in its own fresh context. Do NOT embed/paste its contents into the task prompt.
+- `references/cdr-pipeline-requirements.md` — cloud security / CDR integrations only (`cloudsecurity_cdr` category): event categorization, Must Have / Should Have fields, processor patterns, review checklist
+- `entity-mappings/references/entity-pipeline-patterns.md` — entity/inventory data streams only (`event.kind: asset`): categorization processors, `entity.id` mirroring, boolean coercion, relationship objects, anti-patterns, pipeline review checklist
 

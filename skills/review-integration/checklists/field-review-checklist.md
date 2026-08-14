@@ -3,7 +3,7 @@
 ### Build configuration
 
 - [ ] `_dev/build/build.yml` exists when any field files are present -- **HIGH** if missing
-- [ ] ECS reference pinned to `git@v9.3.0` -- **HIGH** if wrong version
+- [ ] ECS reference pinned to `git@v9.3.0` for standard integrations, or `git@v9.5.0` for packages with entity data streams (those using `event.kind: asset`) -- **HIGH** if wrong version; must match `ecs.version` set in the pipeline
 - [ ] ECS pin consistent with `ecs.version` set in pipeline -- **HIGH** if mismatch
 
 ### base-fields.yml
@@ -42,6 +42,8 @@
 - [ ] `event.type`: only allowed values (access, admin, allowed, change, connection, creation, deletion, denied, device, end, error, group, indicator, info, installation, protocol, start, user) -- **HIGH** if invalid
 - [ ] `event.outcome`: only `failure`, `success`, `unknown` -- **HIGH** if invalid
 - [ ] Values are semantically appropriate for the data source -- **MEDIUM**
+- [ ] `event.kind: asset` used only on entity/inventory data streams (one-document-per-entity snapshots), never on event logs, metric streams, or findings streams -- **MEDIUM** if misapplied
+- [ ] Entity data streams (inventory/snapshot of users, hosts, devices, apps) set `event.kind: asset`, not `event` or `state` -- **MEDIUM** if wrong value used
 
 ### When reviewing a diff
 

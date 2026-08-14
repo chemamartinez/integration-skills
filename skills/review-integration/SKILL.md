@@ -46,8 +46,8 @@ The domain skills state current standards as absolute rules (e.g., `ecs.version:
 |------|-----------|-----------------|
 | `format_version` | Must be `"3.4.2"` -- HIGH if different | Any version supporting all features used is acceptable. Only HIGH if features require a higher version than declared. |
 | `conditions.kibana.version` | Must be `"^8.19.0 \|\| ^9.1.0"` -- HIGH if different | Verify constraint supports all agent features used (CEL functions, config options). Only HIGH if features require a higher version. |
-| `ecs.version` in pipeline | Must be `9.3.0` -- HIGH if older | Any version is acceptable as long as it matches the `build.yml` ECS pin. Only HIGH if pipeline and build.yml are inconsistent with each other. |
-| `build.yml` ECS pin | Must be `git@v9.3.0` -- HIGH if different | Must match pipeline `ecs.version`. Only HIGH if mismatch between the two, not because the version is older. |
+| `ecs.version` in pipeline | Must be `9.3.0` for standard integrations; must be `9.5.0` for packages with entity data streams (`event.kind: asset`) -- HIGH if older than required or mismatched with `build.yml` | Any version is acceptable as long as it matches the `build.yml` ECS pin. Only HIGH if pipeline and build.yml are inconsistent with each other. |
+| `build.yml` ECS pin | Must be `git@v9.3.0` for standard integrations; must be `git@v9.5.0` for packages with entity data streams -- HIGH if different from required | Must match pipeline `ecs.version`. Only HIGH if mismatch between the two, not because the version is older. Entity data streams require `git@v9.5.0` because `entity.attributes.*`, `entity.lifecycle.*`, and `entity.relationships.*` leaf fields do not exist at `v9.3.0`. |
 
 ### Pattern-related rules
 
@@ -147,8 +147,17 @@ These references live in this skill's `references/` directory and provide review
 | CEL or HTTPJSON with API docs available | `references/api-conformance-methodology.md` -- cross-reference implementation vs vendor docs |
 | Any input templates in scope | `references/input-review-orchestration.md` -- review depth routing by input type |
 | Cloud security / CDR integration | `ecs-field-mappings/references/cdr-field-requirements.md` + `ingest-pipelines/references/cdr-pipeline-requirements.md` + `references/cdr-transform-requirements.md` |
+| Entity / entity-inventory data stream | `entity-mappings/references/entity-field-catalog.md` + `entity-mappings/references/entity-pipeline-patterns.md` |
 
 **CDR detection:** Check the root `manifest.yml` categories. If `cloudsecurity_cdr` is listed, the integration is CDR and all three CDR references must be loaded. Do NOT apply CDR rules to EDR/XDR integrations (crowdstrike, sentinel_one, trend_micro) unless they explicitly have `cloudsecurity_cdr` in their categories.
+
+**Entity data stream detection:** Apply the review-time rule from `entity-mappings/references/entity-datastream-classification.md` (first hit wins) to each data stream in scope:
+1. **Definitive:** any pipeline sets `event.kind: asset`.
+2. **Definitive:** `input: entity-analytics` appears in a data stream or policy-template input in any `manifest.yml`.
+3. **Strong:** any `fields/*.yml` declares a field matching `*entity.attributes.*`, `*entity.lifecycle.*`, `*entity.relationships.*`, `entity.type`, or `entity.id`.
+4. **Heuristic:** stream name is one of the entity-vocabulary names (users, members, devices, hosts, assets, accounts, identities, apps, groups, service_accounts, roles, resources) AND no `event.action` or `event.outcome` is set AND pipeline test fixtures carry no per-record event timestamp distinct from collection time.
+5. **Negative gate (overrides 3 and 4):** root `manifest.yml` categories include `cloudsecurity_cdr` AND the stream sets `result.evaluation` or `vulnerability.*` — this is CDR state, not entity asset. Load CDR references only.
+If any stream fires checks 1–4 (and the negative gate does not override), load both entity references for that stream.
 
 ---
 
@@ -284,3 +293,5 @@ Load `references/severity-rubric.md` for domain-specific calibration and `refere
 | `checklists/field-review-checklist.md` | Fields in scope | Severity-tagged field mapping review checklist |
 | `checklists/cel-review-checklist.md` | CEL in scope | Severity-tagged CEL review checklist |
 | `checklists/httpjson-review-checklist.md` | HTTPJSON in scope | Severity-tagged HTTPJSON review checklist |
+| `entity-mappings/references/entity-field-catalog.md` | Entity data stream in scope (see entity detection rule) | ECS availability matrix, Must Have / Should Have field tables, disambiguation guide, field definition examples, entity field review checklist |
+| `entity-mappings/references/entity-pipeline-patterns.md` | Entity data stream in scope (see entity detection rule) | Categorization processors, `entity.id` mirroring, boolean coercion, relationship object patterns, anti-patterns, entity pipeline review checklist |

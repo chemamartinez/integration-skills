@@ -31,6 +31,7 @@ Every subagent task prompt must:
 3. If critical information is missing (package name or input type), ask before proceeding.
 4. Default to package type `integration` unless explicitly told otherwise.
 5. If the product/vendor needs research and no brief is provided, hand off to the `/research-integration` skill (or instruct the user to invoke it) to investigate documentation, API details, and sample payloads before proceeding. That skill orchestrates its own research subagents — do not launch a named `deep-research` subagent yourself.
+6. For each planned data stream, classify it as an **event stream** or an **entity stream** using `entity-mappings/references/entity-datastream-classification.md`. Record the decision and the represented `entity.type`. This changes the Step 2 dispatch (entity reference paths passed or not), the stream name convention (`members` / `users` / `devices` etc.), and the required ECS pin.
 
 ## Phase 2: Scaffold the package
 
@@ -121,6 +122,7 @@ The task prompt must include (in addition to the read-the-manual directive):
 4. Representative request/response payloads or raw-event fixtures.
 5. Links to authoritative requirement files.
 6. Expected ECS categorization if known.
+7. **If this is an entity data stream** (classified in Phase 1): say so explicitly, pass the paths `entity-mappings/references/entity-field-catalog.md` and `entity-mappings/references/entity-pipeline-patterns.md`, and tell the subagent to set `ecs.version: 9.5.0` and `dependencies.ecs.reference: "git@v9.5.0"` in `_dev/build/build.yml`. Pass **paths only** — do not embed file contents.
 
 The subagent will: design and implement the ingest pipeline, define field mappings, create pipeline test fixtures, run `elastic-package test pipeline --generate`, and verify the generated expected output.
 
@@ -250,4 +252,5 @@ Ensure subagents receive this instruction: all fixture data, mock API responses,
 - For CEL inputs, strip unused scaffold vars rather than leaving the verbose generic scaffold.
 - **Never include `data_stream.dataset` in `cel.yml.hbs` or as a manifest var for integration packages** (`type: integration`). The framework routes documents automatically. Only input-type packages (`type: input`) use this field. Setting it in an integration package overrides routing and causes "0 hits" in system tests.
 - Set version to `0.1.0` for new integrations.
-- Do not load domain-specific skills (CEL, pipelines, ECS, field mappings) into your own context. Delegate to subagents.
+- Do not load domain-specific skills (CEL, pipelines, ECS, field mappings, entity-mappings) into your own context. Delegate to subagents.
+- **Entity data streams**: set `event.kind: asset`, never `event`. The `entity.*` leaf fields (`entity.attributes.*`, `entity.lifecycle.*`, `entity.relationships.*`) require `git@v9.5.0` in `_dev/build/build.yml` with a matching `ecs.version: 9.5.0` in the pipeline; at `git@v9.3.0` they are undefined. Never apply entity fields to event log or CDR findings streams.

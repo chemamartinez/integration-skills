@@ -69,6 +69,7 @@ processor examples, test fixture formats, and field mapping patterns you need.
      `event.category` / `event.type` combinations
    - **`references/mapping-type-matrix.md`** — field type selection for custom fields
    - **`references/root-and-core-fields.md`** — ECS root and core field definitions
+   - **`entity-mappings/references/entity-pipeline-patterns.md` and `entity-mappings/references/entity-field-catalog.md`** — read these **only if** the orchestrator's task prompt states this is an entity data stream, or the data is an inventory/snapshot of users, hosts, devices, groups, or apps rather than a timeline of events. If the entity pin is required (`git@v9.5.0`), the orchestrator's prompt will say so explicitly — do not change the pin otherwise.
 
 3. **`integration-testing` skill** — then **read `references/pipeline-testing.md`
    fully**: test fixture format, config files, expected output generation,
@@ -167,7 +168,9 @@ custom fields.
 - If the input emits Beats/Filebeat-specific fields (`input.type`, `log.offset`,
   `log.flags`) not present in `base-fields.yml`, add them to `fields/beats.yml`
 - Ensure `_dev/build/build.yml` exists at the package root with
-  `dependencies.ecs.reference: "git@v9.3.0"`
+  `dependencies.ecs.reference: "git@v9.3.0"` for standard streams, or `"git@v9.5.0"` for
+  entity data streams (those with `event.kind: asset`). The orchestrator will specify which
+  to use. Do not change an existing pin without being told to.
 - Follow the field mapping guidance from the `ecs-field-mappings` skill
 
 ### 5. Create test fixtures
