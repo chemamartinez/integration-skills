@@ -23,6 +23,12 @@ Every subagent task prompt must:
 | `integration-testing/references/builder-system-test-subagent-guidance.md` | After pipeline work, for each testable data stream (CEL, tcp, udp, http_endpoint, logfile, filestream, kafka, gcp-pubsub) | Runs `elastic-package build` + `elastic-package test system --data-streams <stream> --generate`, reports pass/fail and whether `sample_event.json` was produced. |
 | `review-integration/references/reviewer-subagent-guidance.md` | After all streams are built (optional) | Read-only quality review: classifies files by domain via the `review-integration` skill, runs check/lint/format validation, inspects manifest/fields/pipeline/CEL/docs/changelog, returns severity-ranked domain-tagged findings. |
 
+## Phase 0: Verify prerequisites
+
+Before making any changes, verify required tools are present. Run the Preconditions blocks in `references/scaffold-commands.md` **verbatim** — do not improvise alternate checks or install paths. That file is the single source of truth for the `elastic-package` probe and the CEL tool Check / Install / re-Check sequence.
+
+`elastic-package` is always required. If any CEL data streams are being added, also run the CEL Check (and Install + re-Check if anything is missing). Do not skip this: missing tools produce silent degraded output rather than early failures.
+
 ## Phase 1: Parse context and verify package
 
 1. Extract from the user message: target package, stream name(s), stream type, input type(s), and any constraints.
@@ -221,7 +227,10 @@ Ensure subagents receive this instruction: all fixture data, mock API responses,
 - Always use `elastic-package create data-stream` for scaffolding. Never fabricate stream directories manually.
 - Treat all scaffold output as placeholders only. A passing scaffold validation does not mean the data stream implementation is complete.
 - Treat package-level and data stream `manifest.yml` as placeholders until aligned with implemented templates and requirements.
-- **Verify root `manifest.yml` sets `format_version: "3.4.2"` and `conditions.kibana.version: "^8.19.0 || ^9.1.0"`.** If the existing package has different values, update them. These settings belong only in the root manifest, not in data stream manifests.
+- **`format_version`, `conditions.kibana.version`, and ECS reference — match existing package versions, do not bump unconditionally:**
+  - **New package:** always use `format_version: "3.4.2"`, `conditions.kibana.version: "^8.19.0 || ^9.1.0"`, and `_dev/build/build.yml` ECS reference `git@v9.3.0`.
+  - **Adding to an existing shipped package:** match the package's current `format_version`, `conditions.kibana.version`, and `_dev/build/build.yml` ECS reference. Only bump if the new stream requires a feature or field unavailable in the current versions (check `package-spec/references/format-version-features.md`). Bumping unconditionally inflates the diff beyond the feature being added. If you do bump, call it out explicitly in the changelog entry. See the `package-spec` skill for the minimum-version principle.
+  - These settings belong only in the root manifest, not in data stream manifests.
 - For CEL streams, remove all unused manifest vars (package-level and data stream-level). If a var is not used in `cel.yml.hbs`, remove it.
 - Run from inside the target package directory (`packages/<name>/`).
 - Run `elastic-package build` before any system test whenever package files changed.
