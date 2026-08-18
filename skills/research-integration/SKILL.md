@@ -306,7 +306,7 @@ Using the ECS reference skill loaded earlier, perform an initial field mapping a
 3. Note any fields that are strong candidates for `related.ip`, `related.user`, `related.hosts`, or `related.hash` enrichment.
 4. Write the analysis to `ecs-mapping-analysis.md`.
 5. **For each entity-classified stream** (those with `event.kind: asset`, identified in `## Before you start`): using the field data from Track F, produce:
-   - The represented `entity.type` (from the 12 allowed values — check `entity-mappings/references/entity-field-catalog.md`, which you **do not** need to load fully; the allowed values are the only thing you need from it at this stage).
+   - The represented `entity.type` (from the 12 allowed values listed in `entity-mappings/references/entity-datastream-classification.md` — already loaded during `## Before you start`).
    - The source field that maps to `entity.id` (the stable primary key from Track F).
    - A per-field status table for each ECS `entity.*` field the Track F findings touch:
 
@@ -420,8 +420,8 @@ After the research brief and all companion artifacts are written, generate a sta
 - **Do not prescribe entity field mapping or pipeline implementation details in Track F or Phase 4 step 5.** The entity analysis documents what the data looks like and which ECS fields are candidates; it does not design the ingest pipeline, emit field YAML, or specify processor types. The `entity-mappings` and `ingest-pipelines` skills are the authority on those decisions.
   - **Good:** "`membersWithRole` returns `hasTwoFactorEnabled` per member — a candidate for `user.entity.attributes.mfa_enabled`."
   - **Bad:** "Add a `convert` processor with `type: boolean` targeting `user.entity.attributes.mfa_enabled`."
-  - **Good:** "The API returns `role` as a string — possible source for `entity.attributes.roles` (array-valued, may need splitting)."
-  - **Bad:** "Use a `foreach` processor over `role.split(',')` to populate `entity.attributes.roles`."
+  - **Good:** "The API returns `role` as a string — a candidate for `user.roles` (an array of user role objects, may need splitting)."
+  - **Bad:** "Use a `foreach` processor over `role.split(',')` to populate `user.roles`."
 - **Never recommend `httpjson` as an input type.** The `httpjson` input is deprecated in favour of CEL. For any REST/HTTP API, recommend `cel` regardless of how simple the API is or what input type existing streams in the same package use. An existing `httpjson` stream in the same package is a legacy pattern, not a template. Do not reference it as justification for using `httpjson` in new streams.
 - If a product has multiple viable collection methods, document all of them with a recommendation and rationale, but produce detailed deep-dive material for the recommended method.
 - If research reveals the product does not expose data in a way that Elastic can ingest, say so clearly in the brief.

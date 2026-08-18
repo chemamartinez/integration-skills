@@ -57,34 +57,38 @@ correlate across sources.
 
 ```yaml
 # User entity: mirror user.id to user.entity.id (and root entity.id for store)
-- copy_from:
-    field: user.id
-    target_field: user.entity.id
+- set:
+    field: user.entity.id
+    copy_from: user.id
+    ignore_empty_value: true
     ignore_missing: true
-    tag: mirror-user-id-to-entity
-- copy_from:
-    field: user.id
-    target_field: entity.id
+    tag: mirror_user_id_to_entity
+- set:
+    field: entity.id
+    copy_from: user.id
+    ignore_empty_value: true
     ignore_missing: true
-    tag: set-entity-id
-- copy_from:
-    field: user.name
-    target_field: entity.name
+    tag: set_entity_id
+- set:
+    field: entity.name
+    copy_from: user.name
+    ignore_empty_value: true
     ignore_missing: true
-    tag: set-entity-name
+    tag: set_entity_name
 - set:
     field: entity.source
     value: "<integration_name>"
-    tag: set-entity-source
+    tag: set_entity_source
 - set:
     field: entity.type
     value: [user]
-    tag: set-entity-type
-- copy_from:
-    field: "@timestamp"
-    target_field: entity.last_seen_timestamp
+    tag: set_entity_type
+- set:
+    field: entity.last_seen_timestamp
+    copy_from: "@timestamp"
+    ignore_empty_value: true
     ignore_missing: true
-    tag: set-entity-last-seen
+    tag: set_entity_last_seen
 ```
 
 For host entities, substitute `host.id` / `host.name` and `entity.type: [host]`.

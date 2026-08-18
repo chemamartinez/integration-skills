@@ -24,7 +24,7 @@ Severity-tagged checklist. Each item: what to check, violation criteria, severit
 
 ### ECS version
 
-- [ ] Pipeline sets `ecs.version: 9.3.0` -- **HIGH** if older version
+- [ ] Pipeline sets `ecs.version: 9.3.0` for standard streams, or `ecs.version: 9.5.0` for entity data streams (those with `event.kind: asset`) -- **HIGH** if wrong version; must match the `build.yml` ECS pin
 
 ### Processor-level checks
 

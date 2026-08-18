@@ -123,12 +123,12 @@ Dispatch a subagent per the **Dispatch convention** above, pointing it at `inges
 The task prompt must include (in addition to the read-the-manual directive):
 
 1. Package and data stream paths.
-2. **For CEL streams**: tell it the data structure is already known from the CEL builder output and system test mock data. Point it to the mock API response files. Require the pipeline to follow CEL-only opening processors, `ecs.version: 9.3.0`, full `on_failure` baseline, JSE00001 rename/remove, parsing from `event.original`, and `rename` over `set` when mapping into ECS.
+2. **For CEL streams**: tell it the data structure is already known from the CEL builder output and system test mock data. Point it to the mock API response files. Require the pipeline to follow CEL-only opening processors, `ecs.version: 9.3.0` (or `9.5.0` if this is an entity stream — see item 7), full `on_failure` baseline, JSE00001 rename/remove, parsing from `event.original`, and `rename` over `set` when mapping into ECS.
 3. **For non-CEL streams**: provide sample log data and log format details (JSON, syslog, CEF, key-value, etc.). Tell it whether the input is CEL or not, so it knows whether to include CEL-only opening processors.
 4. Representative request/response payloads or raw-event fixtures.
 5. Links to authoritative requirement files.
 6. Expected ECS categorization if known.
-7. **If this is an entity data stream** (classified in Phase 1): say so explicitly, pass the paths `entity-mappings/references/entity-field-catalog.md` and `entity-mappings/references/entity-pipeline-patterns.md`, and tell the subagent to set `ecs.version: 9.5.0` and `dependencies.ecs.reference: "git@v9.5.0"` in `_dev/build/build.yml`. Pass **paths only** — do not embed file contents.
+7. **If this is an entity data stream** (classified in Phase 1): say so explicitly, pass the paths `entity-mappings/references/entity-field-catalog.md` and `entity-mappings/references/entity-pipeline-patterns.md`, and tell the subagent to set `ecs.version: 9.5.0` and `dependencies.ecs.reference: "git@v9.5.0"` in `_dev/build/build.yml`. Pass **paths only** — do not embed file contents. Because `_dev/build/build.yml` is package-wide, any other data streams in the same package must also set `ecs.version: 9.5.0` in their pipelines so the version matches the package pin — pass this instruction alongside any non-entity stream pipeline builds in the same package.
 
 The subagent will: design and implement the ingest pipeline, define field mappings, create pipeline test fixtures, run `elastic-package test pipeline --generate`, and verify the generated expected output.
 

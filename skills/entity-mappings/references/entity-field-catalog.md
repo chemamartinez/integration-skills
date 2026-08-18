@@ -24,10 +24,11 @@ The `entity.attributes.*`, `entity.lifecycle.*`, and `entity.relationships.*` le
 | `entity.lifecycle.last_activity` | ❌ | ✅ | beta | ✅ at `v9.4.0+` only |
 | `entity.relationships.*` | ❌ (`entity_reference` missing) | ✅ | beta | ✅ at `v9.4.0+` only |
 
-**ECS pin rule:** packages with entity data streams must set `git@v9.5.0` in
-`_dev/build/build.yml` and `ecs.version: 9.5.0` in the pipeline (the two must match).
+**ECS pin rule:** packages with entity data streams must set `git@v9.4.0` or higher in
+`_dev/build/build.yml` and a matching `ecs.version` in the pipeline (the two must match).
 Using `external: ecs` on `entity.attributes.*`, `entity.lifecycle.*`, or
 `entity.relationships.*` at `git@v9.3.0` causes `field is undefined` build failures.
+**Recommended pin for new packages: `git@v9.5.0`.**
 
 To verify field availability at a given tag:
 ```bash
@@ -322,7 +323,7 @@ Pipeline `set` processor (`ecs.version`):
 - [ ] `user.name` / `user.id` / `user.email` missing on user entity stream -- **MEDIUM**
 - [ ] `host.name` / `host.id` missing on host entity stream -- **MEDIUM**
 - [ ] Entity leaf fields using `external: ecs` at `git@v9.3.0` pin (undefined at that version) -- **HIGH** if build fails
-- [ ] Packages with entity data streams NOT pinned to `git@v9.5.0` in `build.yml` -- **HIGH** (entity leaf fields undefined)
+- [ ] **New** entity data streams in a package NOT pinned to `git@v9.4.0` or higher in `build.yml` -- **HIGH** (entity leaf fields undefined at v9.3.0); for a **pre-existing** entity data stream with a matched pin below `git@v9.4.0`, flag as **LOW** (upgrade suggestion, not an immediate build breakage if leaf fields are not yet in use)
 - [ ] `entity.attributes.asset` emitted as a field (not in ECS) -- **HIGH**
 - [ ] Any `entity.*` sub-field emitted that does not exist in ECS at the pinned version (invented field) -- **HIGH**; move to `<integration>.<datastream>.<field>` custom namespace
 - [ ] `user.group` declared as a keyword array instead of using `user.group.name` / `user.group.id` -- **MEDIUM**

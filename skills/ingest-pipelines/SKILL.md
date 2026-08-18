@@ -45,7 +45,7 @@ Keep `default.yml` readable and focused. Move large format-specific logic into s
 
 ## ECS version
 
-Set the pipeline ECS reference version explicitly at the top of `processors` (after any introductory processors you already use). **Use `9.3.0`** — do not pin an older ECS version.
+Set the pipeline ECS reference version explicitly at the top of `processors` (after any introductory processors you already use). **Use `9.3.0`** — do not pin an older ECS version. **Exception:** when the orchestrator specifies this is an entity data stream (`event.kind: asset`), use `9.5.0` instead — entity leaf fields (`entity.attributes.*`, `entity.lifecycle.*`, `entity.relationships.*`) do not exist at `9.3.0` and cause `field is undefined` build failures at that pin.
 
 ```yaml
   - set:
