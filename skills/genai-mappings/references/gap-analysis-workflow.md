@@ -11,26 +11,50 @@ Triggered standalone with `/genai-mappings @packages/<package>`.
 
 ## Statuses
 
+Five statuses. ✅ 🔄 🔍 ⛔ are shared with the `entity-mappings` gap analysis, so that
+a report from either skill can be read the same way. ⚠️ is specific to this skill: it marks a
+field that is already populated wrongly.
+
 | Status | Meaning | Evidence required |
 |---|---|---|
 | ✅ Correct | Populated, and name, type, value and shape match the catalog | Pipeline processor + field definition, or (OTel-native streams) the source attribute that arrives under that name |
 | ⚠️ Incorrect | Populated, but wrong field name, type, value, shape or definition (for example `gen_ai.system`, `nested` via `external: ecs`, vendor op name in `operation.name`) | What is wrong and what it should be |
-| 📥 Received, not mapped | The data already reaches the pipeline in this record type, with the current inputs and settings that are on by default or documented in the README (layer 2), but the field isn't populated | Source path in a fixture, mock response, generator code, or vendor docs showing the attribute is sent in a record type the integration already collects |
-| 🔌 Available at source | The source can send it with a setting, another endpoint, transport or record type (layer 3) | Vendor doc URL; what must change, and who controls it |
 | 🔄 Derived | Computable from other fields: a constant, a lookup, a sum, an inference | The rule in plain English, and why it is unambiguous |
-| ⛔ Not available | The source cannot provide it | What was checked in **each** of the three layers |
-| — Not applicable | The field does not apply to this stream kind (`genai-datastream-classification.md`) | The stream kind |
+| 🔍 Gap | The source can provide the value, the package does not populate it, and it can be collected. **Always carries one recommendation** (table below) | Layer 2: source path in a fixture, mock response, generator code, or vendor docs showing the attribute is sent in a record type the integration already collects. Layer 3: vendor doc URL, what must change, and who controls it |
+| ⛔ No action possible | Either the field does not apply to this stream kind or record type (not applicable), or the source cannot provide it (not available). The report says which | Not applicable: the stream kind (`genai-datastream-classification.md`). Not available: what was checked in **each** of the three layers |
 
-**Unpopulated is not ⚠️.** A field the package never sets is 📥, 🔌, 🔄 or ⛔, even if the
+### Recommendations for 🔍
+
+| Recommendation | Use when | Layer |
+|---|---|---|
+| Extract from existing data | The data already reaches the pipeline in this record type, with the current inputs and settings that are on by default or documented in the README, but the field isn't populated | 2 |
+| Add API parameter or request setting | The integration issues the request or owns the input configuration, and a parameter, `include`/`expand` option or input setting makes the source return it | 3 |
+| New API call | Another endpoint of the same API, called from the same data stream, returns it | 3 |
+| Source-side setting (document only) | The user or a vendor administrator controls it (logging configuration, an SDK or CLI environment variable, a cloud account setting) and the integration cannot change it | 3 |
+| New data stream | It arrives as a record type, transport or signal that no stream of the package collects (an endpoint with a different record shape, another log destination, another OTel signal) | 3 |
+
+These are the recommendations of the `entity-mappings` gap analysis, reworded for logs and
+telemetry: *Extract from existing call* and *Add API parameter* there are the first two rows
+here. *Cannot be collected* there is ⛔ here.
+
+**Who controls it decides between the last three rows.** If the integration's own request or
+input configuration decides whether the value is sent, it is *Add API parameter or request
+setting* or *New API call*. If the user's environment or the vendor account decides, it is
+*Source-side setting*. The *Controlled by* column of the content capture table in the report
+records this.
+
+**Unpopulated is not ⚠️.** A field the package never sets is 🔍, 🔄 or ⛔, even if the
 value exists in another field (for example only in `event.action`).
 
 **Assess per record type.** In mixed streams, a field can be available on one record type and
 not on another (request parameters only on a raw request body record, not on the summary
 record). Give each record type its own status. On the record types that don't carry the value,
-use "—" and name the record type that does. Records are not joined at ingest time.
+use ⛔ (not applicable) and name the record type that does. Records are not joined at ingest
+time.
 
 **Additional work is never a reason to drop a field.** Needing an opt-in, a new endpoint, a
-new transport or a new data stream makes the field 🔌, not ⛔. The report says what is needed.
+new transport or a new data stream makes the field 🔍 with the matching recommendation, not
+⛔. The report says what is needed.
 
 ---
 
@@ -104,7 +128,8 @@ Read `genai-field-catalog.md`. For each in-scope stream (and record type), assig
 - Adjacent ECS: `user.*`, `source.ip`, `file.path`, `url.*`, `destination.address`,
   `process.command_line`, `error.*`, `event.outcome`, `event.duration`
 
-For each status, give the evidence listed in the status table. Quote real field names from
+For each status, give the evidence listed in the status table, and for each 🔍 the one
+recommendation. Quote real field names from
 fixtures or docs.
 
 ## Phase 5 — Check definitions and conventions

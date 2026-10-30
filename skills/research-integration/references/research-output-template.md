@@ -299,12 +299,12 @@ For each GenAI-classified data stream:
 
 | ECS field | Status | Source field | Notes |
 |-----------|--------|-------------|-------|
-| `gen_ai.request.model` | ✅ / 🔌 / 🔄 / 🔍 / ⛔ / — | <source_field> | <notes> |
-| `gen_ai.input.messages` | ✅ / 🔌 / 🔄 / 🔍 / ⛔ / — | <source_field> | <opt-in needed? format?> |
-| `gen_ai.usage.input_tokens` | ✅ / 🔌 / 🔄 / 🔍 / ⛔ / — | <source_field> | <are cached tokens included?> |
+| `gen_ai.request.model` | ✅ / 🔄 / 🔍 / ⛔ | <source_field> | <notes> |
+| `gen_ai.input.messages` | ✅ / 🔄 / 🔍 / ⛔ | <source_field> | <opt-in needed, and who controls it? format?> |
+| `gen_ai.usage.input_tokens` | ✅ / 🔄 / 🔍 / ⛔ | <source_field> | <are cached tokens included?> |
 | <every other field from Phase 4 step 6> | | | |
 
-Status key: ✅ sent by default · 🔌 needs a source-side setting, endpoint or transport · 🔄 derived/transformed · 🔍 needs investigation · ⛔ not available · — not applicable to the stream kind.
+Status key: ✅ sent by default · 🔄 derived/transformed · 🔍 obtainable but needs extra work (a source-side setting, request parameter, endpoint, transport or new data stream; say which, and who controls it) or still needs investigation · ⛔ not available or not applicable (say which).
 
 **Source values with no ECS field** (custom field candidates; never `gen_ai.*`):
 
@@ -395,7 +395,7 @@ The research brief is the primary output, but it is supported by additional file
 - **`references/entity-coverage.md`** -- *(entity streams only)* Entity inventory endpoint details, required scopes/permissions, per-record schema, stable key, and MFA/permission/ownership attributes found by Track F. Written by the Track F subagent.
 - **`entity-mapping-analysis.md`** -- *(entity streams only)* Per-field ECS entity coverage table (✅/🔄/🔍/⛔ status) alongside `ecs-mapping-analysis.md`. Written during Phase 4 step 5. **No processors or field YAML** — findings only.
 - **`references/genai-coverage.md`** -- *(GenAI streams only)* Record types, payload and body schemas, content-capture settings, other transports and endpoints, accepted request parameters, and token usage reporting found by Track G. Written by the Track G subagent.
-- **`genai-mapping-analysis.md`** -- *(GenAI streams only)* Per-field ECS `gen_ai.*` coverage table (✅/🔌/🔄/🔍/⛔/— status), source values with no ECS field, and the content-capture settings to document. Written during Phase 4 step 6. **No processors or field YAML** — findings only.
+- **`genai-mapping-analysis.md`** -- *(GenAI streams only)* Per-field ECS `gen_ai.*` coverage table (✅/🔄/🔍/⛔ status), source values with no ECS field, and the content-capture settings to document. Written during Phase 4 step 6. **No processors or field YAML** — findings only.
 - **`temp/`** -- Raw downloaded artifacts: cloned repos, SDK sources, large schema files, analysis scripts. Retained as reference for the human and for reproducibility. Not cleaned up unless disk space is critical.
 
 When the brief references detailed findings that are too large to include inline, it should point to the appropriate file in `references/` or `temp/` with a path and one-line description.

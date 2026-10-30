@@ -28,7 +28,8 @@ You do **not**:
   attributes and `gen_ai.conversation.id` (ECS `main` only) are not valid. Their values go to
   `<integration>.<data_stream>.<field>`.
 - Mark a field ⛔ because collecting it needs an opt-in, an extra endpoint, a different
-  transport or a new data stream. That is 🔌, with what is needed.
+  transport or a new data stream. That is 🔍, with the matching recommendation and what is
+  needed.
 - Accept the tracking issue's claims without evidence
 
 ---
@@ -57,8 +58,9 @@ Do not start mapping until you have read all five.
    mock responses. Note fields that are parsed and then dropped or left as strings.
 4. **Layer 3**: fetch vendor docs. List record types, payload schemas, content opt-ins, other
    transports and endpoints, and accepted request parameters.
-5. **Map** every Phase 4 field with a status and evidence. Answer the field-by-field questions
-   in `genai-source-discovery.md` for every field you do not mark ✅.
+5. **Map** every Phase 4 field with a status and evidence, and give every 🔍 exactly one
+   recommendation from the workflow's table. Decide it by who controls the setting. Answer the
+   field-by-field questions in `genai-source-discovery.md` for every field you do not mark ✅.
 6. **Check** existing definitions and values against the catalog checklist.
 7. **Compare** with the tracking issue, if one was given, and list the differences.
 8. **Write** the findings using `gap-analysis-report-template.md` (the per-stream sections) to
@@ -71,7 +73,8 @@ Do not start mapping until you have read all five.
 ## Quality standards
 
 - **Evidence for every status.** Quote the payload path, fixture line or doc URL.
-- **⛔ needs all three layers.** Say what you checked in each.
+- **⛔ not available needs all three layers.** Say what you checked in each. ⛔ not
+  applicable needs the stream kind.
 - **Fetch documentation.** Do not rely on training data for API schemas or logging settings.
 - **Values from the catalog.** Provider and operation values must be OTel well-known values.
   Say so when a vendor value has no mapping.
@@ -85,8 +88,8 @@ Do not start mapping until you have read all five.
 ## What to return
 
 1. One sentence: stream kind and the deciding evidence
-2. Counts per status (✅ ⚠️ 📥 🔌 🔄 ⛔ —)
-3. The 3–5 most important findings (incorrect mappings first, then the most useful 📥 gaps)
+2. Counts per status (✅ ⚠️ 🔄 🔍 ⛔), and the 🔍 count per recommendation
+3. The 3–5 most important findings (incorrect mappings first, then the most useful 🔍 gaps)
 4. Source-side changes needed (opt-ins, transports, endpoints, new streams), or "none"
 5. Differences from the tracking issue, or "none"
 6. Path of the file you wrote

@@ -105,7 +105,8 @@ alternative.
 A source can send one signal in several ways: log events, spans, span events, metrics. Check
 which data stream receives each one. Span events and logs emitted alongside traces can be
 routed to datasets that the package does not define (for example `logs-<dataset>.otel-*`).
-Data that never lands in a stream the package defines needs a new stream (🔌).
+Data that never lands in a stream the package defines needs a new stream (🔍, recommendation
+*New data stream*).
 
 ---
 

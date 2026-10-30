@@ -15,9 +15,12 @@ gaps, and what must change at the source (opt-ins, transports, new streams).]
 
 Counts cover the core `gen_ai.*` fields only. Mixed streams get one row per record-type group.
 
-| Stream | Record types | Kind | ✅ | ⚠️ | 📥 | 🔌 | 🔄 | ⛔ | — |
-|---|---|---|---|---|---|---|---|---|---|
-| `<stream>` | `<types, or "all">` | Inference / Agent / Tool execution / Message / Usage metrics / Product telemetry | n | n | n | n | n | n | n |
+| Stream | Record types | Kind | ✅ | ⚠️ | 🔄 | 🔍 | ⛔ |
+|---|---|---|---|---|---|---|---|
+| `<stream>` | `<types, or "all">` | Inference / Agent / Tool execution / Message / Usage metrics / Product telemetry | n | n | n | n | n |
+
+Break the 🔍 count down by recommendation below the table, for example: "`<stream>`: 6 🔍 =
+3 extract from existing data, 2 source-side setting, 1 new data stream."
 
 ## ECS pin
 
@@ -44,20 +47,25 @@ today.
 
 Single-kind stream:
 
-| Field | Status | Source | Notes |
-|---|---|---|---|
-| `gen_ai.provider.name` | 🔄 | constant | `aws.bedrock` for every record |
-| `gen_ai.operation.name` | 🔄 | `operation` | Only in `event.action` today; map `Converse`→`chat` |
-| `gen_ai.request.model` | 📥 | `modelId` | |
-| ... every field from the workflow's Phase 4 list ... | | | |
+The *Recommendation* column is filled only for 🔍, with one value from the workflow's
+recommendation table.
 
-Mixed stream: one status column per record-type group. Each cell is `<status> <source>`, and
-notes go below the table.
+| Field | Status | Recommendation | Source | Notes |
+|---|---|---|---|---|
+| `gen_ai.provider.name` | 🔄 | | constant | `aws.bedrock` for every record |
+| `gen_ai.operation.name` | 🔄 | | `operation` | Only in `event.action` today; map `Converse`→`chat` |
+| `gen_ai.request.model` | 🔍 | Extract from existing data | `modelId` | |
+| `gen_ai.request.seed` | ⛔ | | | Not available: the API has no seed parameter |
+| ... every field from the workflow's Phase 4 list ... | | | | |
+
+Mixed stream: one status column per record-type group. Each cell is `<status> <source>`, and a
+🔍 cell adds the recommendation: `🔍 <recommendation>: <source>`. A ⛔ cell for a record type
+that does not carry the value names the one that does. Notes go below the table.
 
 | Field | `api_request` | `api_request_body` | `tool_result` |
 |---|---|---|---|
-| `gen_ai.request.max_tokens` | — (on `api_request_body`) | 🔌 `body.max_tokens` | — |
-| `gen_ai.tool.name` | — | — | ✅ `tool_name` |
+| `gen_ai.request.max_tokens` | ⛔ on `api_request_body` | 🔍 Source-side setting: `body.max_tokens` | ⛔ |
+| `gen_ai.tool.name` | ⛔ | ⛔ | ✅ `tool_name` |
 
 ### ⚠️ Incorrect mappings
 
@@ -67,25 +75,28 @@ For each:
 - **Should be:** [per the catalog]
 - **Breaking?** [does fixing it remove or retype a published field?]
 
-### 📥 / 🔌 Gaps
+### 🔍 Gaps
 
 For each:
 #### `gen_ai.x`
+- **Recommendation:** [one of: Extract from existing data / Add API parameter or request setting / New API call / Source-side setting (document only) / New data stream]
 - **Layer:** 2 (received) / 3 (source)
 - **Source:** [exact path in the payload, or the vendor doc URL]
-- **What is needed:** [parse an existing field / enable setting X / call endpoint Y / switch transport / new data stream]
+- **What is needed:** [parse an existing field / the parameter or setting to add and its default / the setting the user must enable / endpoint Y / the new stream, and who controls it]
 - **Notes:** [formats, size limits, string vs object. Describe the data, not processors.]
 
-### ⛔ Not available
+### ⛔ No action possible
 
-| Field | Layer 1 | Layer 2 | Layer 3 |
-|---|---|---|---|
-| `gen_ai.request.seed` | not mapped | not in any fixture | API has no seed parameter ([doc]) |
+| Field | Reason | Evidence |
+|---|---|---|
+| `gen_ai.request.seed` | Not available | Layer 1: not mapped. Layer 2: not in any fixture. Layer 3: the API has no seed parameter ([doc]) |
+| `gen_ai.tool.call.id` | Not applicable | Stream kind: usage metrics, no per-call records |
 
 ## Values with no ECS field
 
 Kept in the vendor namespace. Never mapped to a `gen_ai.*` name until a released ECS version
-defines it.
+defines it. Status: ✅ the package already keeps it in the vendor field, 🔍 it does not yet
+(with the recommendation), ⛔ the source does not send it.
 
 | Value | Stream | Source | Vendor field | Status | ECS field once released |
 |---|---|---|---|---|---|

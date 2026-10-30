@@ -361,11 +361,11 @@ Using the ECS reference skill loaded earlier, perform an initial field mapping a
      | ECS field | Status | Source field | Notes |
      |---|---|---|---|
      | `gen_ai.request.model` | ✅ default | `modelId` | |
-     | `gen_ai.input.messages` | 🔌 opt-in | `input.inputBodyJson.messages` | only when model invocation logging includes text |
+     | `gen_ai.input.messages` | 🔍 | `input.inputBodyJson.messages` | source-side setting: only when model invocation logging includes text |
      | `gen_ai.usage.input_tokens` | 🔄 derived | `input_tokens` + cache counts | provider total excludes cached tokens |
-     | `gen_ai.request.seed` | ⛔ N/A | — | API has no seed parameter |
+     | `gen_ai.request.seed` | ⛔ | — | not available: API has no seed parameter |
 
-     Status key: ✅ sent by default · 🔌 needs a source-side setting, endpoint or transport · 🔄 derived/transformed · 🔍 needs investigation · ⛔ not available · — not applicable to the stream kind.
+     Status key: ✅ sent by default · 🔄 derived/transformed · 🔍 obtainable but needs extra work (a source-side setting, request parameter, endpoint, transport or new data stream; say which, and who controls it) or still needs investigation · ⛔ not available or not applicable (say which).
 
    - A separate list of source values that have no ECS field (cache and reasoning token counts, session or conversation ids, …), each with its custom field candidate.
    - The content-capture settings the integration's README must document.
